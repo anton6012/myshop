@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Produk - N&N Shop{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h4 class="mb-0"><i class="bi bi-pencil-square"></i> Edit Produk</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="nama" class="form-label">Nama Produk <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="nama" name="nama" required 
+                                       value="{{ produk['nama'] }}">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="harga" class="form-label">Harga <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">Rp</span>
+                                    <input type="number" class="form-control" id="harga" name="harga" required 
+                                           value="{{ produk['harga'] }}" min="0">
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="stok" class="form-label">Stok</label>
+                                <input type="number" class="form-control" id="stok" name="stok" 
+                                       value="{{ produk['stok'] }}" min="0">
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="kategori" class="form-label">Kategori</label>
+                                <select class="form-select" id="kategori" name="kategori">
+                                    <option value="">Pilih Kategori</option>
+                                    <option value="Elektronik" {% if produk['kategori'] == 'Elektronik' %}selected{% endif %}>Elektronik</option>
+                                    <option value="Fashion" {% if produk['kategori'] == 'Fashion' %}selected{% endif %}>Fashion</option>
+                                    <option value="Otomotif" {% if produk['kategori'] == 'Otomotif' %}selected{% endif %}>Otomotif</option>
+                                    <option value="Kesehatan" {% if produk['kategori'] == 'Kesehatan' %}selected{% endif %}>Kesehatan</option>
+                                    <option value="Olahraga" {% if produk['kategori'] == 'Olahraga' %}selected{% endif %}>Olahraga</option>
+                                    <option value="Hobi" {% if produk['kategori'] == 'Hobi' %}selected{% endif %}>Hobi</option>
+                                    <option value="Lainnya" {% if produk['kategori'] == 'Lainnya' %}selected{% endif %}>Lainnya</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="foto" class="form-label">Foto Produk</label>
+                                <input type="file" class="form-control" id="foto" name="foto" 
+                                       accept=".jpg,.jpeg,.png,.gif">
+                                <div class="form-text">
+                                    Biarkan kosong jika tidak ingin mengganti foto.
+                                    {% if produk['foto'] %}
+                                    <br>Foto saat ini: <strong>{{ produk['foto'] }}</strong>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            {% if produk['foto'] %}
+                            <div class="mb-3">
+                                <label class="form-label">Preview Foto</label>
+                                <div>
+                                    <img src="{{ url_for('static', filename='uploads/' + produk['foto']) }}" 
+                                         class="img-thumbnail" 
+                                         style="max-height: 150px;"
+                                         alt="{{ produk['nama'] }}"
+                                         onerror="this.src='https://via.placeholder.com/150?text=No+Image'">
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="deskripsi" class="form-label">Deskripsi Produk</label>
+                        <textarea class="form-control" id="deskripsi" name="deskripsi" rows="4">{{ produk['deskripsi'] or '' }}</textarea>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary me-md-2">
+                            <i class="bi bi-arrow-left"></i> Kembali
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Update Produk
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout - N&N Shop{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else 'warning' }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-truck"></i> Data Pengiriman</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('checkout') }}" id="checkoutForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="nama" class="form-label">Nama Lengkap *</label>
+                                <input type="text" class="form-control" id="nama" name="nama" 
+                                       value="{{ nama }}" required placeholder="Masukkan nama lengkap">
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="no_hp" class="form-label">Nomor WhatsApp *</label>
+                                <input type="tel" class="form-control" id="no_hp" name="no_hp" 
+                                       value="{{ no_hp }}" required placeholder="81234567890">
+                                <div class="form-text">Contoh: 81234567890</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="alamat" class="form-label">Alamat Lengkap *</label>
+                            <textarea class="form-control" id="alamat" name="alamat" rows="3" 
+                                      required placeholder="Masukkan alamat lengkap pengiriman">{{ alamat }}</textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="catatan" class="form-label">Catatan Tambahan</label>
+                            <textarea class="form-control" id="catatan" name="catatan" rows="2" 
+                                      placeholder="Catatan untuk penjual (opsional)">{{ catatan }}</textarea>
+                        </div>
+                        
+                        <hr>
+                        
+                        <!-- Ringkasan Pesanan - VERSI SEDERHANA -->
+                        <h5 class="mb-3"><i class="bi bi-receipt"></i> Ringkasan Pesanan</h5>
+                        
+                        {% if cart_items %}
+                            <div class="table-responsive mb-3">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Produk</th>
+                                            <th>Qty</th>
+                                            <th>Harga</th>
+                                            <th>Subtotal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in cart_items %}
+                                            <tr>
+                                                <td>{{ item.nama }}</td>
+                                                <td>{{ item.qty }}</td>
+                                                <td>Rp {{ item.harga|format_rupiah }}</td>
+                                                <td>Rp {{ item.subtotal|format_rupiah }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <!-- Tampilkan nilai langsung dari Flask -->
+                            <div class="row">
+                                <div class="col-6">
+                                    <strong>Subtotal ({{ total_qty }} item):</strong>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <strong>Rp {{ cart_total|format_rupiah }}</strong>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-6">
+                                    <strong>Ongkos Kirim:</strong>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <strong>
+                                        {% if cart_total >= 500000 %}
+                                            <span class="text-success">GRATIS</span>
+                                        {% else %}
+                                            Rp 15.000
+                                        {% endif %}
+                                    </strong>
+                                </div>
+                            </div>
+                            
+                            <div class="row mt-2 border-top pt-2">
+                                <div class="col-6">
+                                    <h5>Total Akhir:</h5>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <h5 class="text-success">
+                                        {% if cart_total >= 500000 %}
+                                            Rp {{ cart_total|format_rupiah }}
+                                        {% else %}
+                                            Rp {{ (cart_total + 15000)|format_rupiah }}
+                                        {% endif %}
+                                    </h5>
+                                </div>
+                            </div>
+                            
+                            {% if cart_total < 500000 %}
+                                <div class="alert alert-info mt-3">
+                                    <small>
+                                        <i class="bi bi-info-circle"></i> 
+                                        Tambah <strong>Rp {{ (500000 - cart_total)|format_rupiah }}</strong> lagi untuk gratis ongkir!
+                                    </small>
+                                </div>
+                            {% endif %}
+                            
+                        {% else %}
+                            <div class="alert alert-warning">
+                                Keranjang belanja kosong
+                            </div>
+                        {% endif %}
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-between mt-4">
+                            <a href="{{ url_for('cart') }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> Kembali ke Keranjang
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-whatsapp"></i> Lanjutkan ke WhatsApp
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Validasi form
+    document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+        const nama = document.getElementById('nama').value.trim();
+        const no_hp = document.getElementById('no_hp').value.trim();
+        const alamat = document.getElementById('alamat').value.trim();
+        
+        if (!nama || !no_hp || !alamat) {
+            e.preventDefault();
+            alert('Harap lengkapi semua field yang wajib diisi!');
+            return false;
+        }
+        
+        // Format nomor HP
+        let cleanNoHp = no_hp.replace(/\D/g, '');
+        if (cleanNoHp.startsWith('0')) {
+            cleanNoHp = '62' + cleanNoHp.substring(1);
+        }
+        document.getElementById('no_hp').value = cleanNoHp;
+    });
+
+    // Debug: Tampilkan data di console
+</script>
+{% endblock %}

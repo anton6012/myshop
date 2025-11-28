@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Tambah Produk - N&N Shop{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="bi bi-plus-circle"></i> Tambah Produk Baru</h4>
+            </div>
+            <div class="card-body">
+                {% if error %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i> {{ error }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endif %}
+                
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="nama" class="form-label">Nama Produk <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="nama" name="nama" required 
+                                       placeholder="Masukkan nama produk">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="harga" class="form-label">Harga <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">Rp</span>
+                                    <input type="number" class="form-control" id="harga" name="harga" required 
+                                           placeholder="Masukkan harga" min="0">
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="stok" class="form-label">Stok</label>
+                                <input type="number" class="form-control" id="stok" name="stok" 
+                                       placeholder="Masukkan stok" min="0" value="0">
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="kategori" class="form-label">Kategori</label>
+                                <select class="form-select" id="kategori" name="kategori">
+                                    <option value="">Pilih Kategori</option>
+                                    <option value="Elektronik">Elektronik</option>
+                                    <option value="Fashion">Fashion</option>
+                                    <option value="Otomotif">Otomotif</option>
+                                    <option value="Kesehatan">Kesehatan</option>
+                                    <option value="Olahraga">Olahraga</option>
+                                    <option value="Hobi">Hobi</option>
+                                    <option value="Lainnya">Lainnya</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="foto" class="form-label">Foto Produk</label>
+                                <input type="file" class="form-control" id="foto" name="foto" 
+                                       accept=".jpg,.jpeg,.png,.gif">
+                                <div class="form-text">
+                                    Format yang didukung: JPG, JPEG, PNG, GIF. Maksimal 5MB.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="deskripsi" class="form-label">Deskripsi Produk</label>
+                        <textarea class="form-control" id="deskripsi" name="deskripsi" rows="4" 
+                                  placeholder="Masukkan deskripsi produk"></textarea>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary me-md-2">
+                            <i class="bi bi-arrow-left"></i> Kembali
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Simpan Produk
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

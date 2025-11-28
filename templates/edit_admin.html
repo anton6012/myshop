@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Admin - N&N Shop{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h4 class="mb-0"><i class="bi bi-person-gear"></i> Edit Admin</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="username" name="username" 
+                               value="{{ admin['username'] }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" id="email" name="email" 
+                               value="{{ admin['email'] }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="role" class="form-label">Role <span class="text-danger">*</span></label>
+                        <select class="form-select" id="role" name="role" required>
+                            <option value="superadmin" {% if admin['role'] == 'superadmin' %}selected{% endif %}>Super Admin</option>
+                            <option value="admin" {% if admin['role'] == 'admin' %}selected{% endif %}>Admin</option>
+                            <option value="staff" {% if admin['role'] == 'staff' %}selected{% endif %}>Staff</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="is_active" class="form-label">Status</label>
+                        <select class="form-select" id="is_active" name="is_active">
+                            <option value="1" {% if admin['is_active'] %}selected{% endif %}>Aktif</option>
+                            <option value="0" {% if not admin['is_active'] %}selected{% endif %}>Nonaktif</option>
+                        </select>
+                    </div>
+                    
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h6>Informasi Akun</h6>
+                            <div class="small">
+                                <strong>Dibuat:</strong> {{ admin['created_at'] }}<br>
+                                {% if admin['last_login'] %}
+                                <strong>Terakhir Login:</strong> {{ admin['last_login'] }}
+                                {% else %}
+                                <strong>Terakhir Login:</strong> Belum pernah
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3">
+                        <a href="{{ url_for('kelola_admin') }}" class="btn btn-secondary me-md-2">
+                            <i class="bi bi-arrow-left"></i> Kembali
+                        </a>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-save"></i> Update Admin
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

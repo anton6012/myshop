@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Kelola Produk - N&N Shop{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-box-seam"></i> Kelola Produk</h2>
+    <a href="{{ url_for('admin_add') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Tambah Produk
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Daftar Semua Produk</h5>
+    </div>
+    <div class="card-body">
+        {% if not produk %}
+        <div class="alert alert-info text-center py-5">
+            <i class="bi bi-info-circle display-1 d-block mb-3"></i>
+            <h4>Belum ada produk</h4>
+            <p>Silakan tambahkan produk pertama Anda.</p>
+            <a href="{{ url_for('admin_add') }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Tambah Produk Pertama
+            </a>
+        </div>
+        {% else %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>Gambar</th>
+                        <th>Nama Produk</th>
+                        <th>Harga</th>
+                        <th>Stok</th>
+                        <th>Kategori</th>
+                        <th>Deskripsi</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in produk %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>
+                            {% if p['foto'] %}
+                            <img src="{{ url_for('static', filename='uploads/' + p['foto']) }}" 
+                                 class="rounded" 
+                                 style="width: 60px; height: 60px; object-fit: cover;"
+                                 alt="{{ p['nama'] }}"
+                                 onerror="this.src='https://via.placeholder.com/60?text=No+Image'">
+                            {% else %}
+                            <div class="bg-light rounded d-flex align-items-center justify-content-center" 
+                                 style="width: 60px; height: 60px;">
+                                <i class="bi bi-image text-muted"></i>
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <strong>{{ p['nama'] }}</strong>
+                        </td>
+                        <td class="text-success fw-bold">{{ p['harga']|rupiah }}</td>
+                        <td>
+                            <span class="badge {% if p['stok'] > 10 %}bg-success{% elif p['stok'] > 0 %}bg-warning{% else %}bg-danger{% endif %}">
+                                {{ p['stok'] }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if p['kategori'] %}
+                            <span class="badge bg-info">{{ p['kategori'] }}</span>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <small class="text-muted">
+                                {{ (p['deskripsi'] or 'Tidak ada deskripsi')[:50] }}{% if p['deskripsi'] and p['deskripsi']|length > 50 %}...{% endif %}
+                            </small>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{{ url_for('admin_edit', id=p['id']) }}" 
+                                   class="btn btn-sm btn-outline-primary"
+                                   title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{{ url_for('admin_delete', id=p['id']) }}" 
+                                   class="btn btn-sm btn-outline-danger"
+                                   onclick="return confirm('Yakin hapus {{ p.nama }}?')"
+                                   title="Hapus">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

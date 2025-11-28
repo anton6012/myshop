@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block title %}Kelola Admin - N&N Shop{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-people"></i> Kelola Admin</h2>
+    <a href="{{ url_for('tambah_admin') }}" class="btn btn-primary">
+        <i class="bi bi-person-plus"></i> Tambah Admin
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Daftar Admin</h5>
+    </div>
+    <div class="card-body">
+        {% if not admins %}
+        <div class="alert alert-info text-center py-5">
+            <i class="bi bi-info-circle display-1 d-block mb-3"></i>
+            <h4>Belum ada admin</h4>
+            <p>Tambahkan admin pertama untuk membantu mengelola toko.</p>
+        </div>
+        {% else %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Terakhir Login</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for admin in admins %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>
+                            <strong>{{ admin['username'] }}</strong>
+                            {% if admin['id'] == session.admin_id %}
+                            <span class="badge bg-primary ms-1">Anda</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ admin['email'] }}</td>
+                        <td>
+                            {% if admin['role'] == 'superadmin' %}
+                            <span class="badge bg-danger">Super Admin</span>
+                            {% elif admin['role'] == 'admin' %}
+                            <span class="badge bg-warning text-dark">Admin</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Staff</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if admin['is_active'] %}
+                            <span class="badge bg-success">Aktif</span>
+                            {% else %}
+                            <span class="badge bg-danger">Nonaktif</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if admin['last_login'] %}
+                            <small>{{ admin['last_login'] }}</small>
+                            {% else %}
+                            <span class="text-muted">Belum pernah</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('edit_admin', id=admin['id']) }}" 
+                                   class="btn btn-outline-primary" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                
+                                <!-- Reset Password Modal Trigger -->
+                                <button type="button" class="btn btn-outline-warning" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#resetPasswordModal{{ admin['id'] }}"
+                                        title="Reset Password">
+                                    <i class="bi bi-key"></i>
+                                </button>
+                                
+                                {% if admin['id'] != session.admin_id %}
+                                <a href="{{ url_for('hapus_admin', id=admin['id']) }}" 
+                                   class="btn btn-outline-danger"
+                                   onclick="return confirm('Yakin hapus admin {{ admin.username }}?')"
+                                   title="Hapus">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                                {% else %}
+                                <button class="btn btn-outline-secondary" disabled title="Tidak dapat menghapus akun sendiri">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Reset Password Modal -->
+                            <div class="modal fade" id="resetPasswordModal{{ admin['id'] }}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Reset Password - {{ admin['username'] }}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <form method="POST" action="{{ url_for('reset_password_admin', id=admin['id']) }}">
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label for="new_password{{ admin['id'] }}" class="form-label">Password Baru</label>
+                                                    <input type="password" class="form-control" id="new_password{{ admin['id'] }}" 
+                                                           name="new_password" required minlength="6">
+                                                    <div class="form-text">Password minimal 6 karakter</div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                                <button type="submit" class="btn btn-warning">Reset Password</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Info Roles -->
+<div class="card mt-4">
+    <div class="card-header bg-info text-white">
+        <h6 class="mb-0"><i class="bi bi-info-circle"></i> Informasi Role</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <h6><span class="badge bg-danger">Super Admin</span></h6>
+                <p class="small mb-0">• Kelola semua admin<br>• Akses penuh sistem</p>
+            </div>
+            <div class="col-md-4">
+                <h6><span class="badge bg-warning text-dark">Admin</span></h6>
+                <p class="small mb-0">• Kelola semua produk<br>• Tidak bisa kelola admin</p>
+            </div>
+            <div class="col-md-4">
+                <h6><span class="badge bg-secondary">Staff</span></h6>
+                <p class="small mb-0">• Hanya lihat & edit produk sendiri<br>• Akses terbatas</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

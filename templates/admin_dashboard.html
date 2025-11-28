@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - N&N Shop{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-speedometer2"></i> Admin Dashboard</h2>
+    <div>
+        <a href="{{ url_for('admin_add') }}" class="btn btn-primary me-2">
+            <i class="bi bi-plus-circle"></i> Tambah Produk
+        </a>
+        {% if session.admin_role == 'superadmin' %}
+        <a href="{{ url_for('kelola_admin') }}" class="btn btn-outline-info me-2">
+            <i class="bi bi-people"></i> Kelola Admin
+        </a>
+        {% endif %}
+        <a href="{{ url_for('admin_ganti_password') }}" class="btn btn-outline-warning">
+            <i class="bi bi-shield-lock"></i> Ganti Password
+        </a>
+    </div>
+</div>
+
+<!-- Info User -->
+<div class="alert alert-info mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <strong>Selamat datang, {{ session.admin_username }}!</strong>
+            <span class="badge 
+                {% if session.admin_role == 'superadmin' %}bg-danger
+                {% elif session.admin_role == 'admin' %}bg-warning text-dark
+                {% else %}bg-secondary{% endif %} ms-2">
+                {{ session.admin_role|title }}
+            </span>
+        </div>
+        <small>Login sebagai: {{ session.admin_email }}</small>
+    </div>
+</div>
+
+<!-- Statistik Dashboard -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="mb-0">{{ total_produk }}</h4>
+                        <p class="mb-0">Total Produk</p>
+                    </div>
+                    <div class="display-6">
+                        <i class="bi bi-box-seam"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="mb-0">{{ total_stok }}</h4>
+                        <p class="mb-0">Total Stok</p>
+                    </div>
+                    <div class="display-6">
+                        <i class="bi bi-archive"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="mb-0">{{ session.cart.values()|sum if session.cart else 0 }}</h4>
+                        <p class="mb-0">Item di Keranjang</p>
+                    </div>
+                    <div class="display-6">
+                        <i class="bi bi-cart"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card bg-warning text-dark">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="mb-0">{{ total_admin }}</h4>
+                        <p class="mb-0">Total Admin</p>
+                    </div>
+                    <div class="display-6">
+                        <i class="bi bi-people"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="bi bi-lightning"></i> Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2 d-md-flex">
+                    <a href="{{ url_for('admin_add') }}" class="btn btn-primary me-2">
+                        <i class="bi bi-plus-circle"></i> Tambah Produk Baru
+                    </a>
+                    <a href="{{ url_for('admin_produk') }}" class="btn btn-outline-secondary me-2">
+                        <i class="bi bi-list-check"></i> Lihat Semua Produk
+                    </a>
+                    {% if session.admin_role == 'superadmin' %}
+                    <a href="{{ url_for('kelola_admin') }}" class="btn btn-outline-info me-2">
+                        <i class="bi bi-people"></i> Kelola Admin
+                    </a>
+                    {% endif %}
+                    <a href="{{ url_for('admin_ganti_password') }}" class="btn btn-outline-warning">
+                        <i class="bi bi-shield-lock"></i> Ganti Password
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Daftar Produk Terbaru -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-clock-history"></i> Produk Terbaru</h5>
+                <a href="{{ url_for('admin_produk') }}" class="btn btn-sm btn-outline-primary">
+                    Lihat Semua <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+            <div class="card-body">
+                {% if not produk %}
+                <div class="alert alert-info text-center py-5">
+                    <i class="bi bi-info-circle display-1 d-block mb-3"></i>
+                    <h4>Belum ada produk</h4>
+                    <p class="mb-3">Mulai dengan menambahkan produk pertama Anda.</p>
+                    <a href="{{ url_for('admin_add') }}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Tambah Produk Pertama
+                    </a>
+                </div>
+                {% else %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>#</th>
+                                <th>Gambar</th>
+                                <th>Nama Produk</th>
+                                <th>Harga</th>
+                                <th>Stok</th>
+                                <th>Dibuat Oleh</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in produk %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>
+                                    {% if p['foto'] %}
+                                    <img src="{{ url_for('static', filename='uploads/' + p['foto']) }}" 
+                                         class="rounded" 
+                                         style="width: 50px; height: 50px; object-fit: cover;"
+                                         alt="{{ p['nama'] }}"
+                                         onerror="this.src='https://via.placeholder.com/50?text=No+Image'">
+                                    {% else %}
+                                    <div class="bg-light rounded d-flex align-items-center justify-content-center" 
+                                         style="width: 50px; height: 50px;">
+                                        <i class="bi bi-image text-muted"></i>
+                                    </div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <strong>{{ p['nama'] }}</strong>
+                                    {% if p['deskripsi'] %}
+                                    <br><small class="text-muted">{{ p['deskripsi'][:50] }}...</small>
+                                    {% endif %}
+                                </td>
+                                <td class="text-success fw-bold">{{ p['harga']|rupiah }}</td>
+                                <td>
+                                    <span class="badge {% if p['stok'] > 10 %}bg-success{% elif p['stok'] > 0 %}bg-warning{% else %}bg-danger{% endif %}">
+                                        {{ p['stok'] }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <small class="text-muted">
+                                        {% if p['created_by'] == session.admin_id %}
+                                        <span class="badge bg-primary">Anda</span>
+                                        {% else %}
+                                        Admin #{{ p['created_by'] }}
+                                        {% endif %}
+                                    </small>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ url_for('admin_edit', id=p['id']) }}" 
+                                           class="btn btn-outline-primary"
+                                           title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a href="{{ url_for('admin_delete', id=p['id']) }}" 
+                                           class="btn btn-outline-danger"
+                                           onclick="return confirm('Yakin hapus {{ p.nama }}?')"
+                                           title="Hapus">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Informasi Hak Akses -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0"><i class="bi bi-shield-check"></i> Hak Akses Anda</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% if session.admin_role == 'superadmin' %}
+                    <div class="col-md-4">
+                        <h6><i class="bi bi-star-fill text-warning"></i> Super Admin</h6>
+                        <ul class="small text-muted mb-0">
+                            <li>Kelola semua produk</li>
+                            <li>Kelola semua admin</li>
+                            <li>Akses penuh sistem</li>
+                            <li>Reset password admin</li>
+                        </ul>
+                    </div>
+                    {% elif session.admin_role == 'admin' %}
+                    <div class="col-md-4">
+                        <h6><i class="bi bi-person-check text-primary"></i> Admin</h6>
+                        <ul class="small text-muted mb-0">
+                            <li>Kelola semua produk</li>
+                            <li>Tambah & edit produk</li>
+                            <li>Lihat laporan</li>
+                            <li>Tidak bisa kelola admin</li>
+                        </ul>
+                    </div>
+                    {% else %}
+                    <div class="col-md-4">
+                        <h6><i class="bi bi-person text-secondary"></i> Staff</h6>
+                        <ul class="small text-muted mb-0">
+                            <li>Hanya lihat produk sendiri</li>
+                            <li>Edit & hapus produk sendiri</li>
+                            <li>Akses terbatas</li>
+                            <li>Tidak bisa kelola admin</li>
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
