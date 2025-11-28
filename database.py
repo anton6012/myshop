@@ -3,7 +3,7 @@ import sqlite3
 import hashlib
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "myshop.db")
+DB_PATH = os.path.join(BASE_DIR, "data","database.db")
 
 print("Database location:", DB_PATH)
 
